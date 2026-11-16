@@ -1,4 +1,4 @@
-package com.example.frontendassesmentmandiri.ui.theme
+package com.example.frontendassesmentmandiri.presentation.theme
 
 import androidx.compose.ui.graphics.Color
 

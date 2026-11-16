@@ -1,3 +1,6 @@
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -17,9 +20,15 @@ android {
         versionCode = 1
         versionName = "1.0"
 
+        val properties = Properties()
+        val localPropertiesFile = rootProject.file("local.properties")
+        if (localPropertiesFile.exists()) {
+            properties.load(FileInputStream(localPropertiesFile))
+        }
+
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        val apiKey = project.findProperty("TMDB_API_KEY") ?: ""
+        val apiKey = properties.getProperty("TMDB_API_KEY") ?: ""
         buildConfigField("String", "TMDB_API_KEY", "\"$apiKey\"")
     }
 
@@ -64,6 +73,7 @@ dependencies {
 
     implementation(libs.retrofit.core)
     implementation(libs.retrofit.moshi)
+    implementation(libs.moshi.kotlin)
     implementation(libs.okhttp.logging)
 
     implementation(libs.paging.runtime)
