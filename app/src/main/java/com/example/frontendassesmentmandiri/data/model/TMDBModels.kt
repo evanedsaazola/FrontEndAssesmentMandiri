@@ -12,17 +12,17 @@ data class Genre(
 )
 
 data class MovieResponse(
-    @field:Json(name = "page") val page: Int,
-    @field:Json(name = "results") val results: List<Movie>,
-    @field:Json(name = "total_pages") val totalPages: Int
+    @Json(name = "page") val page: Int = 1,
+    @Json(name = "results") val results: List<Movie> = emptyList(),
+    @Json(name = "total_pages") val totalPages: Int = 1
 )
 
 data class Movie(
-    @field:Json(name = "id") val id: Int,
-    @field:Json(name = "title") val title: String,
-    @field:Json(name = "overview") val overview: String,
-    @field:Json(name = "poster_path") val posterPath: String?,
-    @field:Json(name = "release_date") val releaseDate: String?
+    @Json(name = "id") val id: Int,
+    @Json(name = "title") val title: String = "",
+    @Json(name = "overview") val overview: String = "",
+    @Json(name = "poster_path") val posterPath: String? = null,
+    @Json(name = "release_date") val releaseDate: String? = null
 )
 
 data class ReviewResponse(

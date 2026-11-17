@@ -52,7 +52,10 @@
                     is GenreUiState.Success -> {
                         LazyColumn(modifier = Modifier.fillMaxSize()) {
                             items(state.genres) { genreItem ->
-                                GenreItem(genre = genreItem, onClick = { onGenreClick(genreItem.id) })
+                                GenreItem(
+                                    genre = genreItem,
+                                    onClick = { onGenreClick(genreItem.id) }
+                                )
                                 HorizontalDivider()
                             }
                         }
