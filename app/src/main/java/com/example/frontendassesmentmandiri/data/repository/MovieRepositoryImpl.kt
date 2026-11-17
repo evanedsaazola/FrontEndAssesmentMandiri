@@ -7,9 +7,14 @@ import androidx.paging.map
 import com.example.frontendassesmentmandiri.BuildConfig
 import com.example.frontendassesmentmandiri.data.api.TMDBApiService
 import com.example.frontendassesmentmandiri.data.remote.MoviePagingSource
+import com.example.frontendassesmentmandiri.data.remote.MovieReviewPagingSource
 import com.example.frontendassesmentmandiri.domain.model.GenrePayload
+import com.example.frontendassesmentmandiri.domain.model.MovieDetailPayload
 import com.example.frontendassesmentmandiri.domain.model.MoviePayload
+import com.example.frontendassesmentmandiri.domain.model.ReviewPayload
 import com.example.frontendassesmentmandiri.domain.repository.MovieRepository
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -50,6 +55,75 @@ class MovieRepositoryImpl @Inject constructor(
                     posterUrl = movieData.posterPath?.let { path ->
                         "https://image.tmdb.org/t/p/w500$path" },
                     releaseDate = movieData.releaseDate
+                )
+            }
+        }
+    }
+
+    override suspend fun getMovieDetails(movieId: Int): Result<MovieDetailPayload> {
+        return try {
+            coroutineScope {
+                val asyncDetails = async {
+                    apiService.getMovieDetails(
+                        movieId = movieId,
+                        apiKey = BuildConfig.TMDB_API_KEY
+                    )
+                }
+                val asyncVideos = async {
+                    apiService.getMovieVideos(
+                        movieId = movieId,
+                        apiKey = BuildConfig.TMDB_API_KEY
+                    )
+                }
+
+                val movieDetails = asyncDetails.await()
+                val movieVideos = asyncVideos.await()
+
+                val trailer =
+                    movieVideos.results.firstOrNull {
+                        it.site == "YouTube" && it.type == "Trailer"
+                    }?.key ?:
+                    movieVideos.results.firstOrNull {
+                        it.site == "YouTube"
+                    }?.key
+
+                Result.success(
+                    MovieDetailPayload(
+                        id = movieDetails.id,
+                        title = movieDetails.title,
+                        overview = movieDetails.overview,
+                        posterUrl = movieDetails.posterPath?.let { path ->
+                            "https://image.tmdb.org/t/p/w500$path"
+                        },
+                        releaseDate = movieDetails.releaseDate,
+                        youtubeTrailer = trailer
+                    )
+                )
+            }
+        } catch (error: Exception) {
+            Result.failure(error)
+        }
+    }
+
+    override fun getMovieReviews(movieId: Int): Flow<PagingData<ReviewPayload>> {
+        return Pager(
+            config = PagingConfig(
+                pageSize = 20,
+                enablePlaceholders = false
+            ),
+            pagingSourceFactory = {
+                MovieReviewPagingSource(
+                    apiService = apiService,
+                    apiKey = BuildConfig.TMDB_API_KEY,
+                    movieId = movieId
+                )
+            }
+        ).flow.map { pagingData ->
+            pagingData.map { reviewData ->
+                ReviewPayload(
+                    id = reviewData.id,
+                    author = reviewData.author,
+                    content = reviewData.content
                 )
             }
         }

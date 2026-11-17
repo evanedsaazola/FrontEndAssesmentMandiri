@@ -36,11 +36,11 @@ data class Review(
 )
 
 data class VideoResponse(
-    @field:Json(name = "results") val results: List<Video>
+    @Json(name = "results") val results: List<Video>
 )
 
 data class Video(
-    @field:Json(name = "key") val key: String,
-    @field:Json(name = "site") val site: String,
-    @field:Json(name = "type") val type: String
+    @Json(name = "key") val key: String,
+    @Json(name = "site") val site: String,
+    @Json(name = "type") val type: String
 )

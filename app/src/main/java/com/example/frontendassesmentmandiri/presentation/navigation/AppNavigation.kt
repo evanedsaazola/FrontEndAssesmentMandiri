@@ -6,6 +6,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.frontendassesmentmandiri.presentation.detail.DetailScreen
 import com.example.frontendassesmentmandiri.presentation.discover.DiscoverMovieScreen
 import com.example.frontendassesmentmandiri.presentation.genres.GenreScreen
 
@@ -40,7 +41,25 @@ fun AppNavigation() {
 
             DiscoverMovieScreen(
                 genreId = genreId,
-                onMovieClick = { movieId -> }
+                onMovieClick = { movieId ->
+                    navController.navigate(Screen.Details.createRoute(movieId))
+                }
+            )
+        }
+
+        composable(
+            route = Screen.Details.route,
+            arguments = listOf(
+                navArgument("movieId") {
+                    type = NavType.IntType
+                }
+            )
+        ) { backStackEntry ->
+            val movieId = backStackEntry.arguments?.getInt("movieId") ?: return@composable
+
+            DetailScreen(
+                movieId = movieId,
+                onNavigateUp = { navController.navigateUp() }
             )
         }
     }
