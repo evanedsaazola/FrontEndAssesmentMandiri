@@ -32,6 +32,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -40,6 +41,7 @@ import androidx.lifecycle.flowWithLifecycle
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import coil.compose.AsyncImage
+import com.example.frontendassesmentmandiri.R
 import com.example.frontendassesmentmandiri.domain.model.MoviePayload
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -61,7 +63,7 @@ fun DiscoverMovieScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Discover Movies") },
+                title = { Text(text = stringResource(R.string.discover_movie_screen_title)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateUp) {
                         Icon(

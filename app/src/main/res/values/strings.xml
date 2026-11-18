@@ -1,3 +1,14 @@
 <resources>
     <string name="app_name">FrontEndAssesmentMandiri</string>
+
+    <string name="genre_screen_title">Movie Genres</string>
+    <string name="discover_movie_screen_title">Discover Movies</string>
+    <string name="movie_detail_screen_title">Movie Details</string>
+
+    <string name="retry">Retry</string>
+    <string name="reviews">Reviews</string>
+    <string name="failed_to_load">Failed to load more</string>
+    <string name="watch_on_yt">Watch the trailer on YouTube instead!</string>
+    <string name="no_trailer_available">No Trailer Available!</string>
+    <string name="no_review_available">No reviews available for this movie yet.</string>
 </resources>

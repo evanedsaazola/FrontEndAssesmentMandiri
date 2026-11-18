@@ -31,6 +31,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -43,6 +44,7 @@ import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.paging.LoadState
+import com.example.frontendassesmentmandiri.R
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.PlayerConstants
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -72,7 +74,7 @@ fun DetailScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Movie Details") },
+                title = { Text(text = stringResource(R.string.movie_detail_screen_title)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateUp) {
                         Icon(
@@ -140,7 +142,7 @@ fun DetailScreen(
                                                 .fillMaxWidth()
                                                 .padding(vertical = 16.dp)
                                         ) {
-                                            Text(text = "Watch the trailer on YouTube instead!")
+                                            Text(text = stringResource(R.string.watch_on_yt))
                                         }
                                     } else {
                                         AndroidView(
@@ -169,14 +171,14 @@ fun DetailScreen(
                                         )
                                     }
                                 } ?: Text(
-                                    text = "No Trailer Available!",
+                                    text = stringResource(R.string.no_trailer_available),
                                     style = MaterialTheme.typography.bodyMedium
                                 )
                                 Spacer(
                                     modifier = Modifier.height(24.dp)
                                 )
                                 Text(
-                                    text = "Reviews",
+                                    text = stringResource(R.string.reviews),
                                     style = MaterialTheme.typography.titleLarge,
                                     fontWeight = FontWeight.Bold
                                 )
@@ -189,7 +191,7 @@ fun DetailScreen(
                         if (reviewDatas.itemCount == 0 && reviewDatas.loadState.refresh is LoadState.NotLoading) {
                             item {
                                 Text(
-                                    text = "No reviews available for this movie yet.",
+                                    text = stringResource(R.string.no_review_available),
                                     style = MaterialTheme.typography.bodyMedium,
                                     modifier = Modifier.padding(16.dp)
                                 )
@@ -232,11 +234,11 @@ fun DetailScreen(
                                             horizontalAlignment = Alignment.CenterHorizontally
                                         ) {
                                             Text(
-                                                text = "Failed to load more",
+                                                text = stringResource(R.string.failed_to_load),
                                                 color = MaterialTheme.colorScheme.error
                                             )
                                             Button(onClick = { retry() }) {
-                                                Text(text = "Retry")
+                                                Text(text = stringResource(R.string.retry))
                                             }
                                         }
                                     }

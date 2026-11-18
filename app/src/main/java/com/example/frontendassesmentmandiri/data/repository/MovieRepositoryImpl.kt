@@ -1,10 +1,12 @@
 package com.example.frontendassesmentmandiri.data.repository
 
+import androidx.compose.ui.res.stringResource
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.map
 import com.example.frontendassesmentmandiri.BuildConfig
+import com.example.frontendassesmentmandiri.R
 import com.example.frontendassesmentmandiri.data.api.TMDBApiService
 import com.example.frontendassesmentmandiri.data.remote.MoviePagingSource
 import com.example.frontendassesmentmandiri.data.remote.MovieReviewPagingSource
@@ -17,6 +19,8 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import retrofit2.HttpException
+import java.io.IOException
 import javax.inject.Inject
 
 class MovieRepositoryImpl @Inject constructor(
@@ -34,7 +38,7 @@ class MovieRepositoryImpl @Inject constructor(
             }
             Result.success(genresResult)
         } catch (error: Exception) {
-            Result.failure(error)
+            Result.failure(errorMapping(error))
         }
     }
 
@@ -101,7 +105,7 @@ class MovieRepositoryImpl @Inject constructor(
                 )
             }
         } catch (error: Exception) {
-            Result.failure(error)
+            Result.failure(errorMapping(error))
         }
     }
 
@@ -127,5 +131,21 @@ class MovieRepositoryImpl @Inject constructor(
                 )
             }
         }
+    }
+
+    private fun errorMapping(error: Exception): Exception {
+        val errorMessage = when (error) {
+            is IOException -> "Please check your internet connection and try again."
+            is HttpException -> {
+                when (error.code()) {
+                    401 -> "Invalid API Key. Please contact support."
+                    404 -> "Movie data not found."
+                    in 500..599 -> "TMDB Server error. PLease try again later."
+                    else -> "An unexpected network error"
+                }
+            }
+            else -> "An unexpected error happened: ${error.localizedMessage}"
+        }
+        return Exception(errorMessage)
     }
 }

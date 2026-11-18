@@ -22,9 +22,11 @@
     import androidx.compose.runtime.getValue
     import androidx.compose.ui.Alignment
     import androidx.compose.ui.Modifier
+    import androidx.compose.ui.res.stringResource
     import androidx.compose.ui.unit.dp
     import androidx.hilt.navigation.compose.hiltViewModel
     import androidx.lifecycle.compose.collectAsStateWithLifecycle
+    import com.example.frontendassesmentmandiri.R
     import com.example.frontendassesmentmandiri.domain.model.GenrePayload
 
     @OptIn(ExperimentalMaterial3Api::class)
@@ -36,7 +38,7 @@
         val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
         Scaffold(
-            topBar = { TopAppBar(title = { Text("Movie Genres") }) }
+            topBar = { TopAppBar(title = { Text(text = stringResource(R.string.genre_screen_title)) }) }
         ) { paddingValues ->
             Box(
                 modifier = Modifier
@@ -69,7 +71,7 @@
                                 modifier = Modifier.height(8.dp)
                             )
                             Button(onClick = { viewModel.fetchGenres() }) {
-                                Text("Retry")
+                                Text(text = stringResource(R.string.retry))
                             }
                         }
                     }
