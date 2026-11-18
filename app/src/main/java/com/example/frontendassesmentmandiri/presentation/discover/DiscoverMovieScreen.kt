@@ -12,22 +12,31 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.flowWithLifecycle
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import coil.compose.AsyncImage
@@ -38,13 +47,31 @@ import com.example.frontendassesmentmandiri.domain.model.MoviePayload
 fun DiscoverMovieScreen(
     genreId: Int,
     viewModel: DiscoverViewModel = hiltViewModel(),
-    onMovieClick: (Int) -> Unit
+    onMovieClick: (Int) -> Unit,
+    onNavigateUp: () -> Unit
 ) {
 
-    val movieDatas = viewModel.getMovies(genreId).collectAsLazyPagingItems()
+    val lifeCycleOwner = LocalLifecycleOwner.current
+    val moviesFlow = remember(viewModel, genreId, lifeCycleOwner) {
+        viewModel.getMovies(genreId).flowWithLifecycle(lifeCycleOwner.lifecycle)
+    }
+
+    val movieDatas = moviesFlow.collectAsLazyPagingItems()
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Discover Movies") }) }
+        topBar = {
+            TopAppBar(
+                title = { Text("Discover Movies") },
+                navigationIcon = {
+                    IconButton(onClick = onNavigateUp) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Navigate back"
+                        )
+                    }
+                }
+            )
+        }
     ) { paddingValues ->
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
@@ -139,7 +166,8 @@ fun MovieCard(movieData: MoviePayload, onClick: () -> Unit) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(250.dp),
-                contentScale = ContentScale.Crop
+                contentScale = ContentScale.Crop,
+                error = rememberVectorPainter(Icons.Default.Warning)
             )
             Text(
                 text = movieData.title,

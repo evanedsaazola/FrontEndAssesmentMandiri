@@ -10,17 +10,20 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
@@ -37,6 +40,9 @@ import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
 import androidx.core.net.toUri
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.flowWithLifecycle
+import androidx.paging.LoadState
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.PlayerConstants
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -47,11 +53,16 @@ fun DetailScreen(
     onNavigateUp: () -> Unit
 ) {
 
-    val uiState by viewModel.uiState.collectAsState()
-    val reviewDatas = viewModel.fetchMovieReviews(movieId).collectAsLazyPagingItems()
-
     val lifecycleOwner = LocalLifecycleOwner.current
     val context = LocalContext.current
+
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    val reviewFlow = remember(viewModel, movieId, lifecycleOwner) {
+        viewModel.fetchMovieReviews(movieId).flowWithLifecycle(lifecycleOwner.lifecycle)
+    }
+    val reviewDatas = reviewFlow.collectAsLazyPagingItems()
+
     var hasVideoError by remember { mutableStateOf(false) }
 
     LaunchedEffect(movieId) {
@@ -59,7 +70,19 @@ fun DetailScreen(
     }
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Movie Details") }) }
+        topBar = {
+            TopAppBar(
+                title = { Text("Movie Details") },
+                navigationIcon = {
+                    IconButton(onClick = onNavigateUp) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Navigate back"
+                        )
+                    }
+                }
+            )
+        }
     ) { paddingValues ->
         Box(
             modifier = Modifier
@@ -163,6 +186,16 @@ fun DetailScreen(
                             }
                         }
 
+                        if (reviewDatas.itemCount == 0 && reviewDatas.loadState.refresh is LoadState.NotLoading) {
+                            item {
+                                Text(
+                                    text = "No reviews available for this movie yet.",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    modifier = Modifier.padding(16.dp)
+                                )
+                            }
+                        }
+
                         items(reviewDatas.itemCount) { index ->
                             reviewDatas[index]?.let { review ->
                                 Column(
@@ -184,6 +217,29 @@ fun DetailScreen(
                                     HorizontalDivider(
                                         modifier = Modifier.padding(top = 16.dp)
                                     )
+                                }
+                            }
+                        }
+
+                        reviewDatas.apply {
+                            when {
+                                loadState.append is LoadState.Error -> {
+                                    item {
+                                        Column(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(16.dp),
+                                            horizontalAlignment = Alignment.CenterHorizontally
+                                        ) {
+                                            Text(
+                                                text = "Failed to load more",
+                                                color = MaterialTheme.colorScheme.error
+                                            )
+                                            Button(onClick = { retry() }) {
+                                                Text(text = "Retry")
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }

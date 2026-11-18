@@ -43,7 +43,8 @@ fun AppNavigation() {
                 genreId = genreId,
                 onMovieClick = { movieId ->
                     navController.navigate(Screen.Details.createRoute(movieId))
-                }
+                },
+                onNavigateUp = { navController.navigateUp() }
             )
         }
 
